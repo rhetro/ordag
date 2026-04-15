@@ -1,0 +1,27 @@
+[package]
+name = "ordag"
+version = "0.1.0"
+edition = "2021"
+authors = ["Rhetro <rhetro@rhetroxc.com>"]
+description = "A high-performance DAG engine with static alias proofing. Validates graph topology before execution to eliminate runtime borrow checks and data races."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/rhetro/ordag"
+readme = "README.md"
+keywords = ["dag", "graph", "aliasing", "compiler", "scheduling"]
+categories = ["data-structures", "concurrency", "algorithms"]
+
+[dependencies]
+ordex = "0.1.0"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+
+[dev-dependencies]
+criterion = "0.5"
+
+[[bench]]
+name = "ordag_bench"
+harness = false
