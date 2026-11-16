@@ -1,4 +1,4 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{black_box, criterion_group, criterion_main, BatchSize, Criterion};
 use ordag::prelude::*;
 
 // Import the shared test module from the benchmark directory.
@@ -57,12 +57,71 @@ fn bench_execute_phase(c: &mut Criterion) {
 
     c.bench_function("execute_10k_deep_chain", |b| {
         b.iter(|| {
-            // Measure only the user‑space execution loop using the pre‑compiled layers. (For benchmarking, the layers are assumed to be passed by cloning each time.)
             execute_test_layers(&mut engine.nodes, &mut buffers, &engine.execution_layers);
             black_box(&buffers);
         })
     });
 }
 
-criterion_group!(benches, bench_build_phase, bench_execute_phase);
+fn bench_wide_dag(c: &mut Criterion) {
+    const STREAM_COUNT: usize = 10_000;
+
+    c.bench_function("build_10k_wide_dag", |b| {
+        b.iter(|| {
+            let mut engine = OrdagEngine::<TestOp>::new();
+            for _ in 0..STREAM_COUNT {
+                let gen = engine.add_node(
+                    TestOp::MeshCircle {
+                        radius: 1.0,
+                        vertices: 1,
+                    },
+                    vec![],
+                );
+                engine.add_node(
+                    TestOp::Transform {
+                        translation: [0.001, 0.0, 0.0],
+                    },
+                    vec![gen],
+                );
+            }
+            black_box(engine.compile());
+        })
+    });
+
+    let mut engine = OrdagEngine::<TestOp>::new();
+    for _ in 0..STREAM_COUNT {
+        let gen = engine.add_node(
+            TestOp::MeshCircle {
+                radius: 1.0,
+                vertices: 1,
+            },
+            vec![],
+        );
+        engine.add_node(
+            TestOp::Transform {
+                translation: [0.001, 0.0, 0.0],
+            },
+            vec![gen],
+        );
+    }
+    let _ = engine.compile();
+
+    c.bench_function("execute_10k_wide_dag", |b| {
+        b.iter_batched(
+            OrdexArena::<TestBuffer>::new,
+            |mut buffers| {
+                execute_test_layers(&mut engine.nodes, &mut buffers, &engine.execution_layers);
+                black_box(&buffers);
+            },
+            BatchSize::SmallInput,
+        )
+    });
+}
+
+criterion_group!(
+    benches,
+    bench_build_phase,
+    bench_execute_phase,
+    bench_wide_dag
+);
 criterion_main!(benches);

@@ -98,7 +98,7 @@ fn main() {
 
         // Perform zero-cost, in-place batch updates using Ordex
         if !multi_batch.is_empty() {
-            multi_batch.sort_unstable_by(|a, b| a.0.index.cmp(&b.0.index));
+            multi_batch.sort_unstable_by_key(|a| a.0.index);
             let targets: Vec<Index> = multi_batch.iter().map(|(idx, _)| *idx).collect();
             let verified = VerifiedIndices::new(targets);
             let factors: Vec<_> = multi_batch.into_iter().map(|(_, f)| f).collect();

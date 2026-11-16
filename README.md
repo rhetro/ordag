@@ -12,6 +12,13 @@ Its defining feature is the **Static Alias Proof** performed during graph compil
 
 ## Quick Start
 
+Add Ordag to your `Cargo.toml`:
+
+```toml
+[dependencies]
+ordag = "0.1.1"
+```
+
 Run the built-in template to see how to define your domain, compile the graph, and write the execution loop:
 
 ```bash
@@ -81,9 +88,15 @@ By combining single-threaded execution with the `ordex` crate's `align!` macro a
 
 ## Performance Limits (Reference)
 
-Benchmarked on a 10,000-node deep chain of continuous sequential mutations (Release build):
-- **Build Phase (Compile & Prove)**: ~8.9 ms ($O(N+E)$ static analysis)
-- **Execute Phase (Extreme Path)**: ~2.5 ms (0.25 µs per node, pure memory bandwidth speed)
+Benchmarked in Release mode (`opt-level = 3`, `lto = "fat"`):
+
+**1. Deep Chain (10,001 nodes — 10,000 sequential in-place mutations)**
+- **Build Phase (Compile & Prove)**: ~8.8 ms (`O(N+E)` static analysis)
+- **Execute Phase (Extreme Path)**: ~344 µs (~34 ns per node, zero-allocation layer traversal)
+
+**2. Wide / Fan-Out DAG (20,000 nodes — 10,000 parallel streams)**
+- **Build Phase (Compile & Prove)**: ~9.3 ms (`O(N+E)` static analysis)
+- **Execute Phase (Batch Routing via `ordex` v0.3.0)**: ~1.06 ms (~53 ns per node, including buffer allocation and strict ascending batch mutation)
 
 ## Usage Contract
 - **Append-Only**: Nodes can only be added. To restructure the graph, drop the `OrdagEngine` and rebuild it.

@@ -203,3 +203,9 @@ impl<Op: TopologyRules> OrdagEngine<Op> {
         &self.execution_layers
     }
 }
+
+impl<Op: TopologyRules> Default for OrdagEngine<Op> {
+    fn default() -> Self {
+        Self::new()
+    }
+}

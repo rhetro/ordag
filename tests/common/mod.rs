@@ -40,8 +40,12 @@ pub fn execute_test_layers(
     buffers: &mut OrdexArena<TestBuffer>,
     layers: &[Vec<Index>],
 ) {
+    let mut transform_batch: Vec<(Index, [f32; 3])> = Vec::new();
+    let mut targets: Vec<Index> = Vec::new();
+    let mut verified = VerifiedIndices::new(Vec::new());
+
     for layer in layers {
-        let mut transform_batch = Vec::new();
+        transform_batch.clear();
 
         for &node_id in layer {
             enum OpCommand {
@@ -109,14 +113,16 @@ pub fn execute_test_layers(
         }
 
         if !transform_batch.is_empty() {
-            transform_batch.sort_unstable_by(|a, b| a.0.index.cmp(&b.0.index));
-            let targets: Vec<Index> = transform_batch.iter().map(|(idx, _)| *idx).collect();
-            let verified = VerifiedIndices::new(targets);
-            let translations: Vec<_> = transform_batch.into_iter().map(|(_, t)| t).collect();
+            transform_batch.sort_unstable_by_key(|a| a.0.index);
 
-            buffers.ordex(&verified, move |mut iter| {
-                for translation in translations {
-                    let buf = iter.next().unwrap();
+            targets.clear();
+            targets.extend(transform_batch.iter().map(|(idx, _)| *idx));
+            verified.clear_and_verify(&targets);
+
+            let mut batch_iter = transform_batch.iter();
+            buffers.ordex(&verified, |iter| {
+                for buf in iter {
+                    let (_, translation) = batch_iter.next().unwrap();
                     for pos in &mut buf.positions {
                         pos[0] += translation[0];
                         pos[1] += translation[1];
