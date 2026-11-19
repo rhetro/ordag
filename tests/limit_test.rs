@@ -30,7 +30,12 @@ fn test_limit_deep_chain() {
 
     engine.compile();
 
-    execute_test_layers(&mut engine.nodes, &mut buffers, &engine.execution_layers);
+    execute_test_layers(
+        &mut engine.nodes,
+        &engine.input_pool,
+        &mut buffers,
+        &engine.execution_layers,
+    );
 
     let duration = start.elapsed();
 
@@ -80,7 +85,12 @@ fn test_limit_massive_reads() {
 
     engine.compile();
 
-    execute_test_layers(&mut engine.nodes, &mut buffers, &engine.execution_layers);
+    execute_test_layers(
+        &mut engine.nodes,
+        &engine.input_pool,
+        &mut buffers,
+        &engine.execution_layers,
+    );
 
     let duration = start.elapsed();
 

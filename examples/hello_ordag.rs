@@ -62,7 +62,9 @@ fn main() {
                 let node = engine.nodes.get(node_id).unwrap();
                 match &node.op {
                     MyOp::Generator { value } => OpCommand::Generator(*value),
-                    MyOp::Multiplier { factor } => OpCommand::Multiplier(*factor, node.inputs[0]),
+                    MyOp::Multiplier { factor } => {
+                        OpCommand::Multiplier(*factor, engine.node_inputs(node)[0])
+                    }
                 }
             };
 

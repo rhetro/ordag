@@ -57,7 +57,12 @@ fn bench_execute_phase(c: &mut Criterion) {
 
     c.bench_function("execute_10k_deep_chain", |b| {
         b.iter(|| {
-            execute_test_layers(&mut engine.nodes, &mut buffers, &engine.execution_layers);
+            execute_test_layers(
+                &mut engine.nodes,
+                &engine.input_pool,
+                &mut buffers,
+                &engine.execution_layers,
+            );
             black_box(&buffers);
         })
     });
@@ -110,7 +115,12 @@ fn bench_wide_dag(c: &mut Criterion) {
         b.iter_batched(
             OrdexArena::<TestBuffer>::new,
             |mut buffers| {
-                execute_test_layers(&mut engine.nodes, &mut buffers, &engine.execution_layers);
+                execute_test_layers(
+                    &mut engine.nodes,
+                    &engine.input_pool,
+                    &mut buffers,
+                    &engine.execution_layers,
+                );
                 black_box(&buffers);
             },
             BatchSize::SmallInput,

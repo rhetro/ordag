@@ -16,7 +16,7 @@ Add Ordag to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-ordag = "0.1.1"
+ordag = "0.2.0"
 ```
 
 Run the built-in template to see how to define your domain, compile the graph, and write the execution loop:
@@ -91,12 +91,12 @@ By combining single-threaded execution with the `ordex` crate's `align!` macro a
 Benchmarked in Release mode (`opt-level = 3`, `lto = "fat"`):
 
 **1. Deep Chain (10,001 nodes — 10,000 sequential in-place mutations)**
-- **Build Phase (Compile & Prove)**: ~8.8 ms (`O(N+E)` static analysis)
-- **Execute Phase (Extreme Path)**: ~344 µs (~34 ns per node, zero-allocation layer traversal)
+- **Build Phase (Compile & Prove)**: ~2.40 ms (`O(N+E)` CSR & epoch static analysis)
+- **Execute Phase (Extreme Path)**: ~365 µs (~36 ns per node, zero-allocation layer traversal)
 
 **2. Wide / Fan-Out DAG (20,000 nodes — 10,000 parallel streams)**
-- **Build Phase (Compile & Prove)**: ~9.3 ms (`O(N+E)` static analysis)
-- **Execute Phase (Batch Routing via `ordex` v0.3.0)**: ~1.06 ms (~53 ns per node, including buffer allocation and strict ascending batch mutation)
+- **Build Phase (Compile & Prove)**: ~1.89 ms (`O(N+E)` CSR & epoch static analysis)
+- **Execute Phase (Batch Routing via `ordex` v0.3.0)**: ~1.04 ms (~52 ns per node, including buffer allocation and strict ascending batch mutation)
 
 ## Usage Contract
 - **Append-Only**: Nodes can only be added. To restructure the graph, drop the `OrdagEngine` and rebuild it.

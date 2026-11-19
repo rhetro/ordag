@@ -37,6 +37,7 @@ impl TopologyRules for TestOp {
 
 pub fn execute_test_layers(
     nodes: &mut OrdexArena<Node<TestOp>>,
+    input_pool: &[Index],
     buffers: &mut OrdexArena<TestBuffer>,
     layers: &[Vec<Index>],
 ) {
@@ -61,9 +62,11 @@ pub fn execute_test_layers(
                         OpCommand::MeshCircle(*radius, *vertices)
                     }
                     TestOp::Transform { translation } => {
-                        OpCommand::Transform(*translation, node.inputs[0])
+                        OpCommand::Transform(*translation, node.pin(input_pool, 0))
                     }
-                    TestOp::Merge => OpCommand::Merge(node.inputs[0], node.inputs[1]),
+                    TestOp::Merge => {
+                        OpCommand::Merge(node.pin(input_pool, 0), node.pin(input_pool, 1))
+                    }
                 }
             };
 

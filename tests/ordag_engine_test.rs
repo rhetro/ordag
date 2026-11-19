@@ -31,7 +31,12 @@ fn test_buffer_pipeline_golden_path() {
 
     engine.compile();
 
-    execute_test_layers(&mut engine.nodes, &mut buffers, &engine.execution_layers);
+    execute_test_layers(
+        &mut engine.nodes,
+        &engine.input_pool,
+        &mut buffers,
+        &engine.execution_layers,
+    );
 
     let final_node = engine.nodes.get(node_d).unwrap();
     let final_buf_id = final_node.payload_id.unwrap();

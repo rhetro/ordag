@@ -27,7 +27,12 @@ fn test_boundary_zero_vertices() {
     // Static verification and layer generation by the engine.
     engine.compile();
     // Execution loop in user space.
-    execute_test_layers(&mut engine.nodes, &mut buffers, &engine.execution_layers);
+    execute_test_layers(
+        &mut engine.nodes,
+        &engine.input_pool,
+        &mut buffers,
+        &engine.execution_layers,
+    );
 
     let final_node = engine.nodes.get(transform).unwrap();
     let buf_id = final_node.payload_id.unwrap();
